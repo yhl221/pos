@@ -1,22 +1,23 @@
 'use strict';
 
 describe('pos', () => {
-         let inputs;
-         let itemCounts;
-         let itemSubtotals;
-        beforeEach(() => {
-            inputs = [
-                'ITEM000001',
-                'ITEM000001',
-                'ITEM000001',
-                'ITEM000001',
-                'ITEM000001',
-                'ITEM000003-2',
-                'ITEM000005',
-                'ITEM000005',
-                'ITEM000005'
-            ];
-        });
+  let inputs;
+  let itemCounts;
+  let itemSubtotals;
+  let itemReceipts;
+  beforeEach(() => {
+    inputs = [
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000001',
+      'ITEM000003-2',
+      'ITEM000005',
+      'ITEM000005',
+      'ITEM000005'
+    ];
+  });
 
   beforeEach(() => {
     itemCounts = [
@@ -53,7 +54,7 @@ describe('pos', () => {
   beforeEach(() => {
     itemSubtotals = [
       {
-        itemCount: {
+        cartItem: {
           item: {
             barcode: 'ITEM000001',
             name: '雪碧',
@@ -63,10 +64,10 @@ describe('pos', () => {
           count: 5
         },
         subtotal: 12.00,
-        save:3.00
+        save: 3.00
       },
       {
-        itemCount: {
+        cartItem: {
           item: {
             barcode: 'ITEM000003',
             name: '荔枝',
@@ -76,10 +77,10 @@ describe('pos', () => {
           count: 2
         },
         subtotal: 30.00,
-        save:0.00
+        save: 0.00
       },
       {
-        itemCount: {
+        cartItem: {
           item: {
             barcode: 'ITEM000005',
             name: '方便面',
@@ -89,18 +90,65 @@ describe('pos', () => {
           count: 3
         },
         subtotal: 9.00,
-        save:4.50
+        save: 4.50
       }
     ];
   });
 
-        it(' print receipts', () => {
 
-            spyOn(console, 'log');
+  beforeEach(()=> {
+    itemReceipts = {
+      itemReceipt: [
+        {
+          cartItem: {
+            item: {
+              barcode: 'ITEM000001',
+              name: '雪碧',
+              unit: '瓶',
+              price: 3.00
+            },
+            count: 5
+          },
+          subtotal: 12.00
+        },
+        {
+          cartItem: {
+            item: {
+              barcode: 'ITEM000003',
+              name: '荔枝',
+              unit: '斤',
+              price: 15.00
+            },
+            count: 2
+          },
+          subtotal: 30.00
+        },
+        {
+          cartItem: {
+            item: {
+              barcode: 'ITEM000005',
+              name: '方便面',
+              unit: '袋',
+              price: 4.50
+            },
+            count: 3
+          },
+          subtotal: 9.00
+        }
+      ],
+      total: 51.00,
+      save: 7.50
+    };
+  });
 
-            printReceipt(inputs);
 
-            const expectReceipts = `***<没钱赚商店>收据***
+  it(' print receipts', () => {
+
+    spyOn(console, 'log');
+
+    printReceipt(inputs);
+
+    const expectReceipts = `***<没钱赚商店>收据***
 名称：雪碧，数量：5瓶，单价：3.00(元)，小计：12.00(元)
 名称：荔枝，数量：2斤，单价：15.00(元)，小计：30.00(元)
 名称：方便面，数量：3袋，单价：4.50(元)，小计：9.00(元)
@@ -109,49 +157,49 @@ describe('pos', () => {
 节省：7.50(元)
 **********************`;
 
-            expect(console.log).toHaveBeenCalledWith(expectReceipts);
-        });
+    expect(console.log).toHaveBeenCalledWith(expectReceipts);
+  });
 
-    it(' print correct itemsCounts', () => {
+  it(' print itemsCounts', () => {
 
-        let itemCounts;
+    let itemCounts;
 
-        itemCounts = buildItemsCount(inputs);
+    itemCounts = buildItemsCount(inputs);
 
-        const expectitemCounts = [
-            {
-                item: {
-                    barcode: 'ITEM000001',
-                    name: '雪碧',
-                    unit: '瓶',
-                    price: 3.00
-                },
-                count: 5
-            },
-            {
-                item: {
-                    barcode: 'ITEM000003',
-                    name: '荔枝',
-                    unit: '斤',
-                    price: 15.00
-                },
-                count: 2
-            },
-            {
-                item: {
-                    barcode: 'ITEM000005',
-                    name: '方便面',
-                    unit: '袋',
-                    price: 4.50
-                },
-                count: 3
-            }
-        ];
+    const expectitemCounts = [
+      {
+        item: {
+          barcode: 'ITEM000001',
+          name: '雪碧',
+          unit: '瓶',
+          price: 3.00
+        },
+        count: 5
+      },
+      {
+        item: {
+          barcode: 'ITEM000003',
+          name: '荔枝',
+          unit: '斤',
+          price: 15.00
+        },
+        count: 2
+      },
+      {
+        item: {
+          barcode: 'ITEM000005',
+          name: '方便面',
+          unit: '袋',
+          price: 4.50
+        },
+        count: 3
+      }
+    ];
 
-        expect(itemCounts).toEqual(expectitemCounts);
-    });
+    expect(itemCounts).toEqual(expectitemCounts);
+  });
 
-  it(' print correct itemSubtotals', () => {
+  it(' print  itemSubtotals', () => {
 
     let itemSubtotals = buildItemsSubtotal(itemCounts);
     const expectText = [
@@ -164,9 +212,9 @@ describe('pos', () => {
             price: 3.00
           },
           count: 5
-      },
+        },
         subtotal: 12.00,
-        save:3.00
+        save: 3.00
       },
       {
         cartItem: {
@@ -179,7 +227,7 @@ describe('pos', () => {
           count: 2
         },
         subtotal: 30.00,
-        save:0.00
+        save: 0.00
       },
       {
         cartItem: {
@@ -192,20 +240,20 @@ describe('pos', () => {
           count: 3
         },
         subtotal: 9.00,
-        save:4.50
+        save: 4.50
       }
     ];
 
     expect(itemSubtotals).toEqual(expectText);
   });
 
-  it(' print correct itemReceipts', ()=> {
+  it(' print  itemReceipts', ()=> {
 
     let itemReceipts = buildItemsReceipt(itemSubtotals);
     const expectText = {
       itemReceipt: [
         {
-          itemCount: {
+          cartItem: {
             item: {
               barcode: 'ITEM000001',
               name: '雪碧',
@@ -215,10 +263,10 @@ describe('pos', () => {
             count: 5
           },
           subtotal: 12.00,
-          save:3.00
+          save: 3.00
         },
         {
-          itemCount: {
+          cartItem: {
             item: {
               barcode: 'ITEM000003',
               name: '荔枝',
@@ -228,10 +276,10 @@ describe('pos', () => {
             count: 2
           },
           subtotal: 30.00,
-          save:0.00
+          save: 0.00
         },
         {
-          itemCount: {
+          cartItem: {
             item: {
               barcode: 'ITEM000005',
               name: '方便面',
@@ -241,16 +289,28 @@ describe('pos', () => {
             count: 3
           },
           subtotal: 9.00,
-          save:4.50
+          save: 4.50
         }
       ],
       total: 51.00,
-      save:7.50
+      save: 7.50
     };
     expect(itemReceipts).toEqual(expectText);
   });
-});
 
+  it(' print  receipts', ()=> {
+    let receipts = printItemsReceipt(itemReceipts);
+    const expectText = `***<没钱赚商店>收据***
+名称：雪碧，数量：5瓶，单价：3.00(元)，小计：12.00(元)
+名称：荔枝，数量：2斤，单价：15.00(元)，小计：30.00(元)
+名称：方便面，数量：3袋，单价：4.50(元)，小计：9.00(元)
+----------------------
+总计：51.00(元)
+节省：7.50(元)
+**********************`;
+    expect(receipts).toEqual(expectText);
+  });
+});
 
 
 
