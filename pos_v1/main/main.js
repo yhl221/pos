@@ -1,15 +1,15 @@
 'use strict';
 function printReceipt(tags) {
   let allItems = loadAllItems();
-  let promotions=loadPromotions();
-  let cartItems = buildItemsCount(tags,allItems);
-  let receiptItems=buildReceiptItems(cartItems,promotions);
-  let receipts=buildItemsReceipt(receiptItems);
-  let printReceipt=printItemsReceipt(receipts);
+  let promotions = loadPromotions();
+  let cartItems = buildItemsCount(tags, allItems);
+  let receiptItems = buildReceiptItems(cartItems, promotions);
+  let receipts = buildItemsReceipt(receiptItems);
+  let printReceipt = printItemsReceipt(receipts);
   console.log(printReceipt);
 }
 
-function buildItemsCount(tags,allItems) {
+function buildItemsCount(tags, allItems) {
   let cartItems = [];
 
   for (let tag of tags) {
@@ -19,67 +19,66 @@ function buildItemsCount(tags,allItems) {
 
     let cartItem = cartItems.find(cartItem => cartItem.item.barcode === barcode);
     if (cartItem) {
-      cartItem.count++;
+      cartItem.count+=count;
     } else {
       let item = allItems.find(item => item.barcode === barcode);
-      cartItems.push({item: item, count: count});
+      cartItems.push({item,count});
     }
   }
 
   return cartItems;
 }
 
-let buildReceiptItems=(cartItems,promotions) =>{
-  return cartItems.map(cartItem =>{
-    let promotionType = getPromotionType(cartItem.item.barcode,promotions);
-    let {subtotal, saved}=discount(cartItem,promotionType);
-    return  {cartItem,subtotal,saved};
+let buildReceiptItems = (cartItems, promotions) => {
+  return cartItems.map(cartItem => {
+    let promotionType = getPromotionType(cartItem.item.barcode, promotions);
+    let {subtotal, saved}=discount(cartItem, promotionType);
+    return {cartItem, subtotal, saved};
   });
 };
 
-let getPromotionType=(barcode,promotions)=>{
-  let promotion=promotions.find(promotion => promotion.barcodes.includes(barcode));
-  return promotion ? promotion.type : '';
+let getPromotionType = (barcode, promotions)=> {
+  let promotion = promotions.find(promotion => promotion.barcodes.some(b=>b===barcode));
+  return promotion ? promotion.type : undefined;
 };
 
-let discount=(cartItem,promotionType)=>{
-  let freeItemCount=0;
-  if(promotionType==='BUY_TWO_GET_ONE_FREE'){
-    freeItemCount=parseInt(cartItem.count/3);
+let discount = (cartItem, promotionType)=> {
+   let saved=0;
+  let subtotal=cartItem.item.price*cartItem.count;
+  if (promotionType === 'BUY_TWO_GET_ONE_FREE') {
+    saved= parseInt(cartItem.count / 3)*cartItem.item.price;
   }
-
-  let saved=freeItemCount*cartItem.item.price;
-  let subtotal= cartItem.count*cartItem.item.price-saved;
-
-  return {saved,subtotal};
+  subtotal-=saved;
+  return {saved, subtotal};
 };
 
-let buildItemsReceipt=(receiptItems)=> {
-  let receipts;
+let buildItemsReceipt = (receiptItems)=> {
 
-  let total = 0, saved = 0;
+  let total = 0, savedTotal = 0;
   for (let receiptItem of receiptItems) {
     total += receiptItem.subtotal;
-    saved += receiptItem.saved;
+    savedTotal += receiptItem.saved;
   }
-  receipts = {receiptItems, total, saved};
-
-  return receipts;
+  return {receiptItems, total, savedTotal};
 };
 
-let printItemsReceipt=(itemReceipts) =>{
-  let details = '';
+let printItemsReceipt = (itemReceipts) => {
 
-  for (let itemReceipt of itemReceipts.receiptItems) {
-    details += `名称：${itemReceipt.cartItem.item.name}，数量：${itemReceipt.cartItem.count}${itemReceipt.cartItem.item.unit}，单价：${itemReceipt.cartItem.item.price.toFixed(2)}(元)，小计：${itemReceipt.subtotal.toFixed(2)}(元)
-`;
-  }
+  let details = itemReceipts.receiptItems.map(receiptItem=>{
+    let cartItem=receiptItem.cartItem;
+      return `名称：${cartItem.item.name}，\
+数量：${cartItem.count}${cartItem.item.unit}，\
+单价：${cartItem.item.price.toFixed(2)}(元)，\
+小计：${receiptItem.subtotal.toFixed(2)}(元)\
+`;})
+    .join('\n');
 
-  let printreceipts = `***<没钱赚商店>收据***
-${details}----------------------
+  return `***<没钱赚商店>收据***
+${details}
+----------------------
 总计：${itemReceipts.total.toFixed(2)}(元)
-节省：${itemReceipts.saved.toFixed(2)}(元)
+节省：${itemReceipts.savedTotal.toFixed(2)}(元)
 **********************`;
-
-  return printreceipts;
 };
+
+

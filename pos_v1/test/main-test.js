@@ -141,13 +141,13 @@ describe('pos', () => {
         }
       ],
       total: 51.00,
-      saved: 7.50
+      savedTotal: 7.50
     };
   });
 
 
   it(' print receipts', () => {
-  spyOn(console, 'log');
+    spyOn(console, 'log');
 
     printReceipt(inputs);
 
@@ -205,7 +205,7 @@ describe('pos', () => {
   it(' print  receiptItems', () => {
 
     let receiptItems = buildReceiptItems(cartItems,promotions);
-    const expectText = [
+    const expectReceiptItems = [
       {
         cartItem: {
           item: {
@@ -247,14 +247,14 @@ describe('pos', () => {
       }
     ];
 
-    expect(receiptItems).toEqual(expectText);
+    expect(receiptItems).toEqual(expectReceiptItems);
   });
 
 
   it(' print  receipts', ()=> {
 
     let receipts = buildItemsReceipt(receiptItems);
-    const expectText = {
+    const expectReceipts = {
       receiptItems: [
         {
           cartItem: {
@@ -297,14 +297,14 @@ describe('pos', () => {
         }
       ],
       total: 51.00,
-      saved: 7.50
+      savedTotal: 7.50
     };
-    expect(receipts).toEqual(expectText);
+    expect(receipts).toEqual(expectReceipts);
   });
 
   it(' print  printReceipt', ()=> {
     let printReceipt = printItemsReceipt(receipts);
-    const expectText = `***<没钱赚商店>收据***
+    const expectPrintReceipt  = `***<没钱赚商店>收据***
 名称：雪碧，数量：5瓶，单价：3.00(元)，小计：12.00(元)
 名称：荔枝，数量：2斤，单价：15.00(元)，小计：30.00(元)
 名称：方便面，数量：3袋，单价：4.50(元)，小计：9.00(元)
@@ -312,11 +312,9 @@ describe('pos', () => {
 总计：51.00(元)
 节省：7.50(元)
 **********************`;
-    expect(printReceipt).toEqual(expectText);
+    expect(printReceipt).toEqual(expectPrintReceipt);
   });
 });
-
-
 
 
 
